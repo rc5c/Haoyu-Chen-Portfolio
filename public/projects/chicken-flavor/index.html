@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicken Flavor: A Cultural Archive</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f1ea;
+            color: #3e2723;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .no-scroll {
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .locked-page {
+            display: none !important;
+        }
+
+        #page1 {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-image: radial-gradient(circle, rgba(244,241,234,1) 0%, rgba(230,225,214,1) 100%);
+        }
+
+        .floating-words {
+            position: absolute;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 2rem;
+            color: #3e2723;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out, transform 1s ease-out;
+            letter-spacing: 2px;
+            font-style: italic;
+            pointer-events: none;
+        }
+
+        .title-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        #hero-title {
+            opacity: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 3.5rem;
+            font-weight: normal;
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid #8b0000;
+            padding-bottom: 15px;
+            transition: opacity 2s ease-in;
+        }
+
+        #hero-subtitle {
+            opacity: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.5rem;
+            font-weight: normal;
+            margin: 0;
+            color: #3e2723;
+            transition: opacity 2s ease-in;
+        }
+
+        #scroll-indicator {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 2s ease-in;
+            z-index: 10;
+        }
+
+        #scroll-indicator span {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            color: #3e2723;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .arrow {
+            width: 12px;
+            height: 12px;
+            border-right: 1.5px solid #3e2723;
+            border-bottom: 1.5px solid #3e2723;
+            transform: rotate(45deg);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) rotate(45deg); }
+            40% { transform: translateY(-10px) rotate(45deg); }
+            60% { transform: translateY(-5px) rotate(45deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-top: 1px solid rgba(62, 39, 35, 0.1);
+            padding: 80px 0;
+        }
+
+        section h2 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 2.2rem;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+
+        .main-statement {
+            font-size: 1.4rem;
+            font-style: italic;
+            font-family: Georgia, "Times New Roman", serif;
+            color: #3e2723;
+            border-bottom: 1px dashed rgba(62, 39, 35, 0.3);
+            padding-bottom: 20px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .mission-logic {
+            font-size: 1.1rem;
+            border: none;
+            margin-bottom: 10px;
+        }
+
+        .mission-text-red {
+            color: #8b0000;
+            font-weight: bold;
+        }
+
+        .error-hint {
+            color: #8b0000;
+            text-align: center;
+            height: 24px;
+            font-weight: bold;
+            font-style: italic;
+            transition: opacity 0.3s;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        .flavor-map-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .graph-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .graph-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .center-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #8b0000;
+            text-align: center;
+            letter-spacing: 1px;
+            z-index: 20;
+            background-color: #f4f1ea;
+            padding: 10px 15px;
+            border: 1px solid #8b0000;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(244,241,234, 0.8);
+        }
+
+        @keyframes side-sway {
+            0%, 100% { margin-left: 0; }
+            25% { margin-left: -3px; }
+            75% { margin-left: 3px; }
+        }
+
+        .node-btn {
+            position: absolute;
+            transform: translate(-50%, -50%) scale(0.2);
+            z-index: 3;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(62, 39, 35, 0.3);
+            color: #3e2723;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            padding: 8px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, top 0.9s ease, left 0.9s ease, opacity 0.45s ease, transform 0.9s ease;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+            opacity: 0;
+        }
+
+        .node-btn[data-target="aroma"] { top: 15%; left: 50%; }
+        .node-btn[data-target="texture"] { top: 40%; left: 85%; }
+        .node-btn[data-target="fat"] { top: 85%; left: 75%; }
+        .node-btn[data-target="freshness"] { top: 85%; left: 25%; }
+        .node-btn[data-target="quality"] { top: 40%; left: 15%; }
+
+        .node-btn.wobbling {
+            animation: side-sway 3s ease-in-out infinite;
+        }
+
+        .node-btn:hover, .node-btn:focus {
+            background: #fff;
+            border-color: #3e2723;
+            box-shadow: 2px 4px 12px rgba(0,0,0,0.1);
+            outline: none;
+        }
+
+        .node-btn.active {
+            background: #3e2723;
+            color: #f4f1ea;
+            border-color: #3e2723;
+            box-shadow: 0 0 0 4px rgba(62, 39, 35, 0.1);
+        }
+
+        .flavor-description {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(62, 39, 35, 0.3);
+            padding: 40px;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+        }
+
+        .desc-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .desc-content.active {
+            display: block;
+        }
+
+        .desc-content h3 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+            margin: 0 0 15px 0;
+            color: #8b0000;
+            position: relative;
+        }
+
+        .desc-content h3::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 2px;
+            background-color: #8b0000;
+            margin-top: 10px;
+        }
+
+        .desc-content p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #4e342e;
+        }
+
+        .dnd-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 20px;
+            margin-top: 20px;
+            min-height: 400px;
+        }
+
+        .drop-zone {
+            flex: 1;
+            border: 1px solid rgba(62, 39, 35, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.hovered {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: #3e2723;
+            box-shadow: inset 0 0 15px rgba(62, 39, 35, 0.1);
+        }
+
+        .drop-zone h4 {
+            font-family: Georgia, "Times New Roman", serif;
+            text-align: center;
+            font-size: 1.2rem;
+            border-bottom: 1px dashed rgba(62, 39, 35, 0.3);
+            padding-bottom: 15px;
+            margin-top: 0;
+            color: #3e2723;
+            pointer-events: none;
+        }
+
+        .drop-area {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 12px;
+            padding-top: 10px;
+            min-height: 150px;
+            pointer-events: none;
+        }
+
+        .balls-pool {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: center;
+            gap: 15px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .drag-ball {
+            background: #f4f1ea;
+            border: 1px solid #3e2723;
+            color: #3e2723;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: grab;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 0.95rem;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.08);
+            user-select: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            position: relative;
+        }
+
+        .drag-ball:hover:not(.locked) {
+            transform: translateY(-4px);
+            box-shadow: 2px 6px 15px rgba(0,0,0,0.15);
+            background: #fff;
+        }
+
+        .drag-ball:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .drag-ball.dragging {
+            opacity: 0.4;
+        }
+
+        .drag-ball.locked {
+            cursor: default;
+            background: rgba(255, 255, 255, 0.5);
+            border-color: rgba(62, 39, 35, 0.3);
+            box-shadow: none;
+            color: #5d4037;
+            pointer-events: none;
+        }
+
+        .success-scroll-hint {
+            text-align: center;
+            font-family: Georgia, "Times New Roman", serif;
+            font-style: italic;
+            color: #8b0000;
+            font-size: 1.2rem;
+            margin-top: 40px;
+            margin-bottom: -10px;
+            opacity: 0;
+            display: none;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .success-scroll-hint.visible {
+            opacity: 1;
+        }
+
+        .unlock-panel {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 1px solid #8b0000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease-in-out;
+            display: none;
+        }
+
+        .unlock-panel.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .unlock-title {
+            text-align: center;
+            color: #8b0000;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .unlock-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .unlock-grid h4 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            margin-top: 0;
+            color: #3e2723;
+        }
+
+        .unlock-grid p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .continue-hint {
+            text-align: center;
+            margin-top: 40px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-style: italic;
+            color: #8b0000;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        .comparison-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 450px;
+            height: 600px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+
+        .flip-card:hover .flip-card-inner,
+        .flip-card:focus-within .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .flip-card-front {
+            background-color: #fff;
+            border: 1px solid rgba(62, 39, 35, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-image-container {
+            width: 100%;
+            height: 60%;
+            overflow: hidden;
+            position: relative; 
+        }
+
+        .card-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-source-caption {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 3px 6px;
+            border-radius: 4px;
+            z-index: 5;
+        }
+
+        .image-source-caption a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+
+        .image-source-caption a:hover {
+            text-decoration: underline;
+        }
+
+        .card-front-content {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 40%;
+            background-color: #fff;
+        }
+
+        .card-front-content h3 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.8rem;
+            color: #3e2723;
+            margin: 0 0 10px 0;
+        }
+
+        .card-front-content p {
+            font-size: 1.1rem;
+            color: #8b0000;
+            margin: 0;
+            font-style: italic;
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        .flip-card-back {
+            background-color: #3e2723;
+            color: #f4f1ea;
+            transform: rotateY(180deg);
+            text-align: left;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #3e2723;
+        }
+
+        .back-section {
+            margin-bottom: 20px;
+        }
+
+        .back-section h4 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.2rem;
+            color: #8b0000;
+            margin: 0 0 8px 0;
+            border-bottom: 1px solid rgba(244, 241, 234, 0.2);
+            padding-bottom: 5px;
+            background-color: #f4f1ea;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        .back-section p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+            color: rgba(244, 241, 234, 0.9);
+        }
+
+        .citation-sup {
+            font-size: 0.7rem;
+            vertical-align: super;
+            color: #f4f1ea;
+            opacity: 0.8;
+            margin-left: 2px;
+        }
+
+        .card-refs {
+            margin-top: auto;
+            border-top: 1px dotted rgba(244, 241, 234, 0.3);
+            padding-top: 15px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: rgba(244, 241, 234, 0.6);
+        }
+
+        .card-refs p {
+            margin: 0 0 5px 0;
+        }
+
+        .card-refs a {
+            color: rgba(244, 241, 234, 0.8);
+            text-decoration: none;
+        }
+
+        .card-refs a:hover {
+            text-decoration: underline;
+        }
+
+        #page5 {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-top: none;
+            padding: 0;
+        }
+
+        #page5-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./image_副本/Guangzhou.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            z-index: 1;
+        }
+
+        #page5-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(244,241,234,1) 0%, rgba(62,39,35,0.6) 100%);
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            z-index: 2;
+        }
+
+        .bg-source-caption {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            z-index: 5;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s ease;
+        }
+
+        .bg-source-caption a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .bg-source-caption a:hover {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: underline;
+        }
+
+        .final-intro-text {
+            position: absolute;
+            z-index: 3;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 2.5rem;
+            color: #3e2723;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 2s ease, transform 2s ease;
+            font-style: italic;
+        }
+
+        .final-intro-text.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .final-intro-text.fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        .ticket-wrapper {
+            position: relative;
+            z-index: 4;
+            background-color: #fdfbf7;
+            border: 1px solid rgba(62, 39, 35, 0.2);
+            width: 90%;
+            max-width: 550px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 2s ease, transform 2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            box-sizing: border-box;
+        }
+
+        .ticket-wrapper.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ticket-header h3 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.5rem;
+            color: #8b0000;
+            margin: 0;
+            text-align: center;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(62, 39, 35, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .ticket-col {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .ticket-col.full {
+            flex: 100%;
+        }
+
+        .ticket-col .label {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 0.8rem;
+            color: rgba(62, 39, 35, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .ticket-col .value {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.4rem;
+            color: #3e2723;
+        }
+
+        .ticket-col .value.address {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: rgba(62, 39, 35, 0.8);
+        }
+
+        .ticket-col .value.purpose {
+            font-style: italic;
+            color: #8b0000;
+        }
+
+        .ticket-footer {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .go-btn {
+            display: inline-block;
+            padding: 12px 50px;
+            background-color: transparent;
+            border: 1px solid #3e2723;
+            color: #3e2723;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            cursor: pointer;
+        }
+
+        .go-btn:hover, .go-btn:focus {
+            background-color: #3e2723;
+            color: #f4f1ea;
+            outline: none;
+        }
+
+        @media (max-width: 900px) {
+            .flavor-map-container {
+                grid-template-columns: 1fr;
+            }
+            .comparison-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .flip-card {
+                width: 100%;
+                max-width: 450px;
+            }
+            .graph-wrapper {
+                max-width: 350px;
+            }
+            .dnd-container {
+                flex-direction: column;
+            }
+            .unlock-grid {
+                grid-template-columns: 1fr;
+            }
+            .ticket-wrapper {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body class="no-scroll">
+    <main>
+        <div id="page1">
+            <div class="title-container">
+                <h1 id="hero-title">Chicken Flavor Is Not Just Chicken.</h1>
+                <p id="hero-subtitle">Why Cantonese people care about “real chicken flavor”</p>
+            </div>
+            <div id="scroll-indicator">
+                <span>Scroll</span>
+                <div class="arrow"></div>
+            </div>
+        </div>
+
+        <div class="container">
+            <section id="page2">
+                <h2>02. What does “chicken flavor” mean?</h2>
+                <p class="main-statement">Chicken flavor is not one taste. It is a combination of aroma, texture, fat, freshness, and overall quality.</p>
+                
+                <div class="flavor-map-container">
+                    <div class="graph-wrapper">
+                        <svg class="graph-lines" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                            <line x1="50" y1="50" x2="50" y2="15" stroke="rgba(62, 39, 35, 0.4)" stroke-width="0.3" stroke-dasharray="1,1" /> 
+                            <line x1="50" y1="50" x2="85" y2="40" stroke="rgba(62, 39, 35, 0.4)" stroke-width="0.3" stroke-dasharray="1,1" /> 
+                            <line x1="50" y1="50" x2="75" y2="85" stroke="rgba(62, 39, 35, 0.4)" stroke-width="0.3" stroke-dasharray="1,1" /> 
+                            <line x1="50" y1="50" x2="25" y2="85" stroke="rgba(62, 39, 35, 0.4)" stroke-width="0.3" stroke-dasharray="1,1" /> 
+                            <line x1="50" y1="50" x2="15" y2="40" stroke="rgba(62, 39, 35, 0.4)" stroke-width="0.3" stroke-dasharray="1,1" /> 
+                        </svg>
+
+                        <div class="center-node">CHICKEN<br>FLAVOR</div>
+
+                        <button class="node-btn active" data-target="aroma">Aroma</button>
+                        <button class="node-btn" data-target="texture">Texture</button>
+                        <button class="node-btn" data-target="fat">Fat</button>
+                        <button class="node-btn" data-target="freshness">Freshness</button>
+                        <button class="node-btn" data-target="quality">Quality</button>
+                    </div>
+
+                    <div class="flavor-description">
+                        <div id="desc-aroma" class="desc-content active">
+                            <h3>Aroma</h3>
+                            <p>Aroma is central to chicken flavor. Much of what people recognize as “chickeny” comes from volatile compounds released during cooking, especially through Maillard reactions, lipid oxidation, and interactions between the two.</p>
+                        </div>
+                        <div id="desc-texture" class="desc-content">
+                            <h3>Texture</h3>
+                            <p>Texture is not flavor in the narrow chemical sense, but it strongly shapes eating quality. Sensory studies of poultry repeatedly assess tenderness, juiciness, and firmness alongside aroma and taste because these traits influence how flavor is finally judged.</p>
+                        </div>
+                        <div id="desc-fat" class="desc-content">
+                            <h3>Fat</h3>
+                            <p>Fat contributes more than richness. Lipids help generate characteristic chicken aroma during cooking and also influence juiciness, mouthfeel, and tenderness, making flavor feel fuller and more persistent.</p>
+                        </div>
+                        <div id="desc-freshness" class="desc-content">
+                            <h3>Freshness</h3>
+                            <p>Freshness is better understood as a quality cue than as a taste note. In practical evaluation, it is judged through smell, appearance, color, and surface condition; when freshness declines, off-odors and surface tackiness begin to interfere with flavor perception.</p>
+                        </div>
+                        <div id="desc-quality" class="desc-content">
+                            <h3>Quality</h3>
+                            <p>In everyday culinary language, “chicken flavor” essentially means the bird feels complete, balanced, and distinctly natural compared to heavily processed alternatives.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="page3">
+                <h2>03. Guess the Cantonese Taste Logic</h2>
+                <p class="main-statement mission-logic">
+                    <span class="mission-text-red">Mission: Unlock the Archive.</span><br>
+                    Drag and sort the eight keywords into the correct categories. Learn by trial and error!
+                </p>
+                
+                <p id="error-msg" class="error-hint"></p>
+                
+                <div class="dnd-container">
+                    <div class="drop-zone" id="zone-cantonese" data-accept="cantonese">
+                        <h4>Closer to Cantonese Taste Logic</h4>
+                        <div class="drop-area"></div>
+                    </div>
+
+                    <div class="balls-pool" id="balls-pool">
+                        <div class="drag-ball" draggable="true" id="b1" data-target="cantonese">original taste</div>
+                        <div class="drag-ball" draggable="true" id="b2" data-target="cantonese">freshness</div>
+                        <div class="drag-ball" draggable="true" id="b4" data-target="cantonese">ingredient-led</div>
+                        <div class="drag-ball" draggable="true" id="b8" data-target="cantonese">restraint</div>
+                        <div class="drag-ball" draggable="true" id="b3" data-target="other">heavy sauce</div>
+                        <div class="drag-ball" draggable="true" id="b5" data-target="other">spice first</div>
+                        <div class="drag-ball" draggable="true" id="b9" data-target="other">masking flavor</div>
+                        <div class="drag-ball" draggable="true" id="b12" data-target="other">external intensity</div>
+                    </div>
+
+                    <div class="drop-zone" id="zone-other" data-accept="other">
+                        <h4>Not the Flavor Logic Highlighted Here</h4>
+                        <div class="drop-area"></div>
+                    </div>
+                </div>
+
+                <div id="success-scroll-hint" class="success-scroll-hint">
+                    All matches found! Scroll down to explore the archive &darr;
+                </div>
+
+                <div class="unlock-panel" id="unlock-panel">
+                    <h3 class="unlock-title">Archive Unlocked</h3>
+                    <div class="unlock-grid">
+                        <div>
+                            <h4>Purity</h4>
+                            <p>The culinary logic relies on holding back. Concepts like 'original taste,' 'restraint,' and 'natural sweetness' all emphasize a light touch, letting the core ingredient speak for itself.</p>
+                        </div>
+                        <div>
+                            <h4>Ingredient-led</h4>
+                            <p>Freshness is a prerequisite. Ingredient-led cooking means a deliberate focus on preserving 'freshness' and generating a 'clear aroma' directly from the natural fats and muscle fibers.</p>
+                        </div>
+                        <div>
+                            <h4>Texture & Balance</h4>
+                            <p>'Balance' on the palate is key. Cantonese ideas extend to judging the bird's natural Completeness, requiring a textural 'depth' and firmness that processed alternatives completely lack.</p>
+                        </div>
+                    </div>
+                    <div class="continue-hint" id="continue-hint">Scroll down to continue reading &darr;</div>
+                </div>
+            </section>
+
+            <section id="page4" class="locked-page">
+                <h2>04. Representative Chickens of Guangdong</h2>
+                <p class="main-statement">The logic of environment, time, and flavor: A direct comparison.</p>
+                
+                <div class="comparison-container">
+                    
+                    <div class="flip-card" tabindex="0">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="card-image-container">
+                                    <img src="./image_副本/whitefeatherchicken.jpg" alt="Industrial Broiler Chicken">
+                                    <div class="image-source-caption">Source: <a href="https://a-z-animals.com/animals/chicken/chicken-facts/different-white-chicken-breeds/" target="_blank" rel="noopener noreferrer">a-z-animals.com</a></div>
+                                </div>
+                                <div class="card-front-content">
+                                    <h3>Common Canadian Broiler</h3>
+                                    <p>The Industrial Standard</p>
+                                </div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="back-section">
+                                    <h4>A. Growth Cycle</h4>
+                                    <p>Bred exclusively for rapid growth. Reaches market weight in just 35 to 42 days. This extremely short cycle allows almost no time for natural flavor compounds to develop<span class="citation-sup">[1]</span>.</p>
+                                </div>
+                                <div class="back-section">
+                                    <h4>B. Environment & Build</h4>
+                                    <p>Raised in high-density indoor facilities with minimal movement. The meat is extremely soft and tender, but entirely lacks chewiness or textural depth.</p>
+                                </div>
+                                <div class="back-section">
+                                    <h4>C. Culinary Purpose</h4>
+                                    <p>Because the meat is soft and neutral, it acts as a perfect blank canvas. Ideal for heavy seasoning, deep frying, or rich sauces where the chicken carries the flavor rather than providing it.</p>
+                                </div>
+                                <div class="card-refs">
+                                    <p>[1] <a href="https://doi.org/10.1139/cjas-2023-0001" target="_blank" rel="noopener noreferrer">Sammari, H., et al. (2023). A survey of broiler breast meat quality in the retail market of Quebec. Canadian Journal of Animal Science. 103(3): 298-311.</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flip-card" tabindex="0">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="card-image-container">
+                                    <img src="./image_副本/qingyuanchicken.png.webp" alt="Qingyuan Free Range Chicken">
+                                    <div class="image-source-caption">Source: <a href="http://www.tnong.com/col.jsp?id=142" target="_blank" rel="noopener noreferrer">tnong.com</a></div>
+                                </div>
+                                <div class="card-front-content">
+                                    <h3>Qingyuan Chicken</h3>
+                                    <p>The King of Flavor</p>
+                                </div>
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="back-section">
+                                    <h4>A. Growth Cycle</h4>
+                                    <p>A slow-growing heritage breed. Requires a minimum of 130 to 160 days to mature. This long lifespan allows natural amino acids and flavor compounds to fully concentrate within the muscle fibers<span class="citation-sup">[1]</span>.</p>
+                                </div>
+                                <div class="back-section">
+                                    <h4>B. Environment & Build</h4>
+                                    <p>Free-range roaming in bamboo groves and mountains, foraging naturally. High activity creates dense, firm muscle fibers with exceptional texture and lower water loss.</p>
+                                </div>
+                                <div class="back-section">
+                                    <h4>C. Culinary Purpose</h4>
+                                    <p>Intensely flavorful. The ultimate choice for classic White Cut Chicken. The goal is not to add flavor, but to preserve it with minimal seasoning to highlight its natural umami.</p>
+                                </div>
+                                <div class="card-refs">
+                                    <p>[1] <a href="https://doi.org/10.1016/j.psj.2024.103740" target="_blank" rel="noopener noreferrer">Xiao, L., et al. (2024). A large-scale comparison of the meat quality characteristics of different chicken breeds in South China. Poultry science, 103(6), 103740.</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="page5" class="locked-page">
+                <div id="page5-bg"></div>
+                <div id="page5-overlay"></div>
+                
+                <div class="bg-source-caption">Source: <a href="https://www.ca.kayak.com/Guangzhou.17708.guide" target="_blank" rel="noopener noreferrer">ca.kayak.com</a></div>
+                
+                <div class="final-intro-text" id="final-intro">
+                    Some flavours are better understood in person.
+                </div>
+
+                <div class="ticket-wrapper" id="final-ticket">
+                    <div class="ticket-header">
+                        <h3>Boarding Pass</h3>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="ticket-row">
+                            <div class="ticket-col">
+                                <span class="label">From</span>
+                                <span class="value">Canada</span>
+                            </div>
+                            <div class="ticket-col">
+                                <span class="label">To</span>
+                                <span class="value">Guangzhou</span>
+                            </div>
+                        </div>
+                        <div class="ticket-row">
+                            <div class="ticket-col full">
+                                <span class="label">Destination</span>
+                                <span class="value">Lei Garden</span>
+                            </div>
+                        </div>
+                        <div class="ticket-row">
+                            <div class="ticket-col full">
+                                <span class="label">Address</span>
+                                <span class="value address">4/F, KWG International Financial Place,<br>8 Huaxia Road, Zhujiang New Town,<br>Tianhe District, Guangzhou</span>
+                            </div>
+                        </div>
+                        <div class="ticket-row">
+                            <div class="ticket-col full">
+                                <span class="label">Purpose</span>
+                                <span class="value purpose">To taste it for yourself</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticket-footer">
+                        <a href="https://www.aircanada.com/" target="_blank" rel="noopener noreferrer" class="go-btn">Go</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        (function() {
+            const words = [
+                "Flavor", "Culture", "Fat", "Origin", "Aroma", 
+                "Compound", "Texture", "Nuance", "Memory", "Depth", 
+                "Time", "Cantonese"
+            ];
+            
+            const heroDiv = document.getElementById("page1");
+            const mainTitle = document.getElementById("hero-title");
+            const subTitle = document.getElementById("hero-subtitle");
+            const scrollIndicator = document.getElementById("scroll-indicator");
+
+            let delay = 0;
+            
+            words.forEach((word) => {
+                setTimeout(() => {
+                    let span = document.createElement("span");
+                    span.className = "floating-words";
+                    span.innerText = word;
+                    
+                    const topPos = 20 + Math.random() * 60;
+                    const leftPos = 15 + Math.random() * 70;
+                    
+                    span.style.top = topPos + "%";
+                    span.style.left = leftPos + "%";
+                    
+                    heroDiv.appendChild(span);
+
+                    setTimeout(() => {
+                        span.style.opacity = "0.6";
+                        span.style.transform = `translateY(-20px)`;
+                    }, 50);
+
+                    setTimeout(() => {
+                        span.style.opacity = "0";
+                    }, 1000); 
+
+                    setTimeout(() => {
+                        if (span.parentNode) {
+                            span.parentNode.removeChild(span);
+                        }
+                    }, 2000); 
+                    
+                }, delay);
+                
+                delay += 400; 
+            });
+
+            setTimeout(() => {
+                if(mainTitle) mainTitle.style.opacity = "1";
+                if(subTitle) subTitle.style.opacity = "1";
+                if(scrollIndicator) scrollIndicator.style.opacity = "1";
+                
+                document.body.classList.remove("no-scroll");
+            }, delay + 800); 
+
+            const nodeBtns = document.querySelectorAll('.node-btn');
+            const descContents = document.querySelectorAll('.desc-content');
+            const page2 = document.getElementById('page2');
+            let page2Animated = false;
+
+            function revealPage2Keywords() {
+                if (page2Animated) return;
+                page2Animated = true;
+
+                nodeBtns.forEach((btn, index) => {
+                    btn.style.top = '50%';
+                    btn.style.left = '50%';
+                    btn.style.opacity = '0';
+                    btn.style.transform = 'translate(-50%, -50%) scale(0.2)';
+
+                    setTimeout(() => {
+                        btn.style.top = '';
+                        btn.style.left = '';
+                        btn.style.opacity = '1';
+                        btn.style.transform = 'translate(-50%, -50%) scale(1)';
+
+                        setTimeout(() => {
+                            btn.classList.add('wobbling');
+                        }, 900);
+                    }, 140 * index); 
+                });
+            }
+
+            const page2Observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        revealPage2Keywords();
+                        page2Observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.45 });
+
+            if (page2) {
+                page2Observer.observe(page2);
+            }
+
+            nodeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    nodeBtns.forEach(b => b.classList.remove('active'));
+                    descContents.forEach(d => d.classList.remove('active'));
+                    
+                    btn.classList.add('active');
+                    const targetId = 'desc-' + btn.getAttribute('data-target');
+                    const targetElement = document.getElementById(targetId);
+                    if(targetElement) targetElement.classList.add('active');
+                });
+            });
+
+            const dragBalls = document.querySelectorAll('.drag-ball');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            const unlockPanel = document.getElementById('unlock-panel');
+            const page4 = document.getElementById('page4');
+            const page5 = document.getElementById('page5');
+            const hint = document.getElementById('continue-hint');
+            
+            let correctlySortedCount = 0;
+            const totalBalls = 8;
+
+            dragBalls.forEach(ball => {
+                ball.addEventListener('dragstart', (e) => {
+                    if (ball.classList.contains('locked')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    e.dataTransfer.setData('text/plain', ball.id);
+                    setTimeout(() => { ball.classList.add('dragging'); }, 0);
+                });
+
+                ball.addEventListener('dragend', () => {
+                    ball.classList.remove('dragging');
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault(); 
+                    zone.classList.add('hovered');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('hovered');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('hovered');
+                    
+                    const ballId = e.dataTransfer.getData('text/plain');
+                    const ball = document.getElementById(ballId);
+                    
+                    if (!ball || ball.classList.contains('locked')) return;
+
+                    const expectedZone = ball.getAttribute('data-target');
+                    const actualZone = zone.getAttribute('data-accept');
+
+                    if (expectedZone === actualZone) {
+                        const errorMsg = document.getElementById('error-msg');
+                        if (errorMsg) errorMsg.style.opacity = '0';
+
+                        zone.querySelector('.drop-area').appendChild(ball);
+                        ball.setAttribute('draggable', 'false');
+                        ball.classList.add('locked'); 
+                        correctlySortedCount++;
+
+                        if (correctlySortedCount === totalBalls) {
+                            const successHint = document.getElementById('success-scroll-hint');
+                            if (successHint) {
+                                successHint.style.display = 'block';
+                            }
+                            
+                            unlockPanel.style.display = 'block';
+                            
+                            setTimeout(() => { 
+                                if (successHint) successHint.classList.add('visible');
+                                unlockPanel.classList.add('visible'); 
+                            }, 50);
+                            
+                            const pool = document.getElementById('balls-pool');
+                            if(pool) pool.style.display = 'none';
+
+                            setTimeout(() => {
+                                if (page4) page4.classList.remove('locked-page');
+                                if (page5) page5.classList.remove('locked-page');
+                                if (hint) hint.style.opacity = "1";
+                            }, 1000);
+                        }
+                    } else {
+                        const pool = document.getElementById('balls-pool');
+                        if (pool) {
+                            pool.appendChild(ball);
+                        }
+
+                        const errorMsg = document.getElementById('error-msg');
+                        if (errorMsg) {
+                            let msg = "That doesn't quite fit there. Try again!";
+                            
+                            if (actualZone === 'cantonese') { 
+                                 if (ballId === 'b3') msg = "Too much sauce masks the real chicken flavor!";
+                                 if (ballId === 'b5') msg = "Spices are a distraction here.";
+                                 if (ballId === 'b9') msg = "Cantonese cuisine highlights ingredients, it doesn't mask them.";
+                                 if (ballId === 'b12') msg = "We look for internal quality, not external heavy seasoning.";
+                            } 
+                            else if (actualZone === 'other') { 
+                                 if (ballId === 'b1') msg = "Original taste is the soul of Cantonese chicken!";
+                                 if (ballId === 'b2') msg = "Freshness is an absolute requirement.";
+                                 if (ballId === 'b4') msg = "Cantonese cooking is strictly ingredient-led.";
+                                 if (ballId === 'b8') msg = "Restraint is key to preserving the natural flavor.";
+                            }
+
+                            errorMsg.innerText = msg;
+                            errorMsg.style.opacity = '1';
+                        }
+                    }
+                });
+            });
+
+            const page5Observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const introText = document.getElementById('final-intro');
+                        const bgImage = document.getElementById('page5-bg');
+                        const overlay = document.getElementById('page5-overlay');
+                        const ticket = document.getElementById('final-ticket');
+
+                        if(introText) introText.classList.add('show');
+
+                        setTimeout(() => {
+                            if(bgImage) bgImage.style.opacity = '1';
+                            if(overlay) overlay.style.opacity = '1';
+                        }, 1500);
+
+                        setTimeout(() => {
+                            if(introText) introText.classList.add('fade-out');
+                        }, 3500);
+
+                        setTimeout(() => {
+                            if(ticket) ticket.classList.add('show');
+                        }, 4500);
+
+                        page5Observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            if (page5) {
+                page5Observer.observe(page5);
+            }
+
+        })();
+    </script>
+</body>
+</html>

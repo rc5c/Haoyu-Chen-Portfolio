@@ -1,0 +1,139 @@
+<html>
+<head>
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        background: #000;
+        overflow: hidden;
+        font-family: monospace; 
+        user-select: none;
+    }
+
+    video {
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        display: block;
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
+
+    .prank-box {
+        position: absolute;
+        top: 0; bottom: 0; left: 0; right: 0; margin: auto;
+        width: fit-content;
+        height: fit-content;
+        background-color: rgba(0, 0, 0, 0.9);
+        padding: 40px 60px;
+        border: 2px solid #c600ff;
+        box-shadow: 0 0 40px #c600ff;
+        z-index: 10; 
+        text-align: center;
+    }
+
+    .title {
+        color: #c600ff;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .btn {
+        background-color: #c600ff;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+    }
+    .btn:hover {
+        background-color: white;
+        color: #c600ff;
+        box-shadow: 0 0 20px white;
+    }
+</style>
+</head>
+
+<body>
+
+  <video autoplay muted loop playsinline id="bg-video">
+      <source src="./video/background.mp4" type="video/mp4">
+  </video>
+
+  <div class="prank-box">
+      <div class="title">
+           TOUCH ME AND I GLITCH<br>
+          <span style="color:red; font-size: 14px; display:block; margin-top:10px;">
+              WARNING YOU HEART RATE MAY SPIKE
+          </span>
+      </div>
+      <button class="btn" onclick="startPrank()">
+          [ BREAK THE SEAL ]
+      </button>
+  </div>
+
+  <script>
+    function startPrank() {
+        var video = document.querySelector('video');
+        
+        document.querySelector('.prank-box').style.display = 'none';
+
+        video.muted = false;
+
+        // Level 1 
+        video.src = "./video/level1.mp4"; 
+        video.play();
+
+        setTimeout(function() {
+            alert("Oh, you finally pressed it. Your curiosity got approved before your self control did");
+
+            // Level 2
+            video.src = "./video/level2.mp4";
+            video.play();
+
+            setTimeout(function() {
+                alert("Don’t run. You were so bold a second ago, and now you’re out of steam? ");
+
+                // Level 3
+                video.src = "./video/level3.mp4";
+                video.play();
+
+                setTimeout(function() {
+                    alert("Go on, press it. Be good. You’re already here, who are you trying to impress with that “self control? ");
+
+                    // Level 4
+                    video.src = "./video/level4.mp4";
+                    video.play();
+
+                    setTimeout(function() {
+                        alert("I warned you. Press it again and I’m not cleaning up the aftermath. But you love hearing that, don’t you? ");
+
+                    // Level 5
+                    video.src = "./video/level5.mp4";
+                    video.play();
+    
+                    setTimeout(function() {
+                        alert("Fine. Don’t explain. You never wanted the answer, you wanted that one little “keep going” feeling. So go on.");
+
+                        video.src = "./video/Rick.mp4";
+                        video.style.objectFit = "contain";
+                        video.play();
+                       }, 75); 
+                    }, 75); 
+                }, 75);
+            }, 75);
+        }, 75);
+    }
+  </script>
+
+</body>
+</html>
+
+

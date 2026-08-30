@@ -1,0 +1,6 @@
+node_modules/
+.npm-cache/
+dist/
+desktop-package/
+qa-*.png
+.DS_Store
