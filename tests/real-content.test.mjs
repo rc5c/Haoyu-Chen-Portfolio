@@ -38,6 +38,27 @@ test("gallery uses creative titles, merged MENU artwork, and the supplied poster
   assert.equal(gallery.find((p) => p.slug === "part-2").images.length, 2);
   assert.ok(gallery.every((p) => !/400428379|^3BB3 Assignment 1A$|^Assignment 2$|^Part 2/i.test(p.title)));
   await access(new URL("public/media/gallery/my-way-poster/artwork.jpg", root));
+  await access(new URL("public/media/gallery/my-way-poster/artwork-web.jpg", root));
+});
+
+test("public titles keep the exact supplied English project names", async () => {
+  const gallery = await content("gallery");
+  const sounds = await content("sound");
+  const videos = await content("video");
+  assert.deepEqual(gallery.map((p) => p.title), ["AI Intimacy", "Red Pill Blue Pill", "Fragmented Balance", "MENU", "My Way Poster"]);
+  assert.deepEqual(sounds.map((p) => p.title), ["Backyard BBQ", "An Eventful Weekend", "Drumbeat", "Fungal Hallucination", "Frozen Memory Fragments"]);
+  assert.deepEqual(videos.map((p) => p.title), ["A Stitched Third Birth", "A-Z Tomato & Eggs", "One Becomes Two"]);
+  assert.ok([...gallery, ...sounds, ...videos].every((p) => !/400428379|^3BB3 Assignment 1A$|^Assignment 2$|^Part 2(?: - Chen 400428379)?$/i.test(p.title)));
+});
+
+test("volume uses a visible native 0–100 range without fragile pointer interception", async () => {
+  const app = await read("src/App.jsx");
+  const css = await read("src/styles.css");
+  assert.match(app, /type="range" min="0" max="100" step="1" value=\{volumePercent\}/);
+  assert.match(app, /audioRef\.current\.volume = nextPercent \/ 100/);
+  assert.match(app, /onVolumeChange=\{\(event\) => setVolumePercent\(Math\.round\(event\.currentTarget\.volume \* 100\)\)\}/);
+  assert.doesNotMatch(app, /volumeDraggingRef|volumeAtPointer/);
+  assert.doesNotMatch(css, /\.volume-control\s*\{\s*display:\s*none/);
 });
 
 test("new sound source is real, local, and uses the supplied two-minute WAV", async () => {

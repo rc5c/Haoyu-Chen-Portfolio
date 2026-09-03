@@ -396,15 +396,14 @@ function SoundPlayer({ project }) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.22);
+  const [volumePercent, setVolumePercent] = useState(22);
   const [error, setError] = useState("");
   const audioRef = useRef(null);
   const scrubbingRef = useRef(false);
-  const volumeDraggingRef = useRef(false);
 
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volume;
-  }, [volume]);
+    if (audioRef.current) audioRef.current.volume = volumePercent / 100;
+  }, [volumePercent]);
 
   const toggle = async () => {
     const audio = audioRef.current;
@@ -418,15 +417,9 @@ function SoundPlayer({ project }) {
   };
 
   const changeVolume = (event) => {
-    const nextVolume = Number(event.target.value);
-    setVolume(nextVolume);
-    if (audioRef.current) audioRef.current.volume = nextVolume;
-  };
-  const volumeAtPointer = (event) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const value = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width));
-    setVolume(value);
-    if (audioRef.current) audioRef.current.volume = value;
+    const nextPercent = Math.min(100, Math.max(0, Number(event.currentTarget.value)));
+    if (audioRef.current) audioRef.current.volume = nextPercent / 100;
+    else setVolumePercent(nextPercent);
   };
 
   const seekTo = (value) => {
@@ -461,7 +454,7 @@ function SoundPlayer({ project }) {
           onDurationChange={syncDuration}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          onVolumeChange={(event) => setVolume(event.currentTarget.volume)}
+          onVolumeChange={(event) => setVolumePercent(Math.round(event.currentTarget.volume * 100))}
           onEnded={(event) => { setPlaying(false); syncTime(event); }}
           onTimeUpdate={syncTime}
           onSeeked={syncTime}
@@ -509,34 +502,11 @@ function SoundPlayer({ project }) {
         </label>
         <label className="volume-control">
           <span>VOLUME</span>
-          <input type="range" min="0" max="1" step="0.01" value={volume} onInput={changeVolume} onChange={changeVolume}
-            aria-valuetext={`${Math.round(volume * 100)} percent`}
-            onPointerDown={(event) => {
-              if (event.button !== 0) return;
-              event.preventDefault();
-              event.currentTarget.focus();
-              event.currentTarget.setPointerCapture(event.pointerId);
-              volumeDraggingRef.current = true;
-              volumeAtPointer(event);
-            }}
-            onPointerMove={(event) => { if (volumeDraggingRef.current) volumeAtPointer(event); }}
-            onPointerUp={(event) => {
-              if (!volumeDraggingRef.current) return;
-              volumeAtPointer(event);
-              volumeDraggingRef.current = false;
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }}
-            onPointerCancel={() => { volumeDraggingRef.current = false; }}
-            onLostPointerCapture={() => { volumeDraggingRef.current = false; }}
-            onKeyDown={(event) => {
-              const targets = { ArrowLeft: volume - .05, ArrowDown: volume - .05, ArrowRight: volume + .05, ArrowUp: volume + .05, Home: 0, End: 1 };
-              if (event.key in targets) {
-                event.preventDefault();
-                const value = Math.max(0, Math.min(1, targets[event.key]));
-                setVolume(value);
-                if (audioRef.current) audioRef.current.volume = value;
-              }
-            }} />
+          <input type="range" min="0" max="100" step="1" value={volumePercent}
+            aria-label="Volume"
+            aria-valuetext={`${volumePercent} percent`}
+            onInput={changeVolume}
+            onChange={changeVolume} />
         </label>
       </div>
       {error && <p className="audio-error" role="alert">{error}</p>}
