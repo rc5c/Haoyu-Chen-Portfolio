@@ -4,8 +4,8 @@ Editor 页面、入口、样式及本地保存 API 已移除。开发版和生�
 
 后续修改直接在前端完成：
 
-- `src/content/gallery.json`：5 个图片系列，`images` 保存每个系列的图片列表。
-- `src/content/sound.json`：音频项目，`audioUrl` 指向 MP3。
+- `src/content/gallery.json`：5 个图片项目，`images` 保存每个项目的作品列表。
+- `src/content/sound.json`：5 个音频项目，`audioUrl` 指向浏览器兼容音频。
 - `src/content/video.json`：视频项目和 YouTube 链接。
 - `src/content/website.json`：网站项目与完整网站文件夹路径。
 - `src/content/communication.json`：介绍与联系方式。

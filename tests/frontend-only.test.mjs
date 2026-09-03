@@ -27,9 +27,12 @@ test("all existing local project media and static category routes resolve", asyn
     }
     if (category === "gallery") {
       assert.equal(projects.length, 5);
-      assert.equal(projects.reduce((count, project) => count + project.images.length, 0), 7);
+      assert.equal(projects.reduce((count, project) => count + project.images.length, 0), 8);
     }
-    if (category === "sound") assert.equal(projects.filter((project) => project.audioUrl?.endsWith(".mp3")).length, 4);
+    if (category === "sound") {
+      assert.equal(projects.length, 5);
+      assert.ok(projects.every((project) => /\.(?:mp3|wav)$/.test(project.audioUrl)));
+    }
   }
   await access(new URL("dist/communication/index.html", root));
 });

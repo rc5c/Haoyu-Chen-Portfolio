@@ -2,14 +2,14 @@
   {
     "id": "human-ai-love",
     "slug": "human-ai-love",
-    "title": "Human AI Love",
+    "title": "AI Intimacy",
     "category": "gallery",
     "year": "",
     "type": "Image Series",
     "course": "",
     "duration": "",
     "role": "",
-    "description": "",
+    "description": "A three-image series exploring AI intimacy as a form of digital hallucination. Moving from encounter to immersion and addiction, the work shows how artificial intimacy can gradually reshape attachment, blur reality, and lead toward alienation and loss of self.",
     "thumbnail": "/media/gallery/human-ai-love/apparition.jpg",
     "mediaUrl": "/media/gallery/human-ai-love/apparition.jpg",
     "images": [
@@ -29,14 +29,14 @@
   {
     "id": "3bb3-assignment-1a",
     "slug": "3bb3-assignment-1a",
-    "title": "3BB3 Assignment 1A",
+    "title": "Red Pill Blue Pill",
     "category": "gallery",
     "year": "",
     "type": "Composite Image",
     "course": "3BB3",
     "duration": "",
     "role": "",
-    "description": "",
+    "description": "A digital photographic composition inspired by the red-pill and blue-pill choice in The Matrix. Reframed as a personal decision between returning to China and remaining in Canada, the work turns two lenses into competing futures shaped by distance, family, money, and digital communication.",
     "thumbnail": "/media/gallery/3bb3-assignment-1a/cover.jpg",
     "mediaUrl": "/media/gallery/3bb3-assignment-1a/cover.jpg",
     "images": [
@@ -54,14 +54,14 @@
   {
     "id": "assignment-2",
     "slug": "assignment-2",
-    "title": "Assignment 2",
+    "title": "Fragmented Balance",
     "category": "gallery",
     "year": "",
     "type": "Panoramic Composite",
     "course": "",
     "duration": "",
     "role": "",
-    "description": "",
+    "description": "A pair of Joiner-style photographic collages exploring emotional pressure and recovery. Fragmented views move from the frustration and loss of control produced by digital gameplay toward tai chi, physical movement, and balance.",
     "thumbnail": "/media/gallery/assignment-2/cover.jpg",
     "mediaUrl": "/media/gallery/assignment-2/cover.jpg",
     "images": [
@@ -79,18 +79,19 @@
   {
     "id": "part-2",
     "slug": "part-2",
-    "title": "Part 2",
+    "title": "MENU",
     "category": "gallery",
     "year": "",
     "type": "Still-image Artwork",
     "course": "",
     "duration": "",
     "role": "",
-    "description": "",
+    "description": "A two-part Neo-Dada work examining desire, consumption, and digital attention. Currency, food packaging, QR codes, memes, distortion, and glitch aesthetics turn personal choices and online behaviour into systems of exchange and consumption.",
     "thumbnail": "/media/gallery/part-2/cover.jpg",
     "mediaUrl": "/media/gallery/part-2/cover.jpg",
     "images": [
-      "/media/gallery/part-2/cover.jpg"
+      "/media/gallery/part-2/cover.jpg",
+      "/media/gallery/part-2-chen/cover.jpg"
     ],
     "videoUrl": "",
     "audioUrl": "",
@@ -102,20 +103,20 @@
     "status": "published"
   },
   {
-    "id": "part-2-chen-400428379",
-    "slug": "part-2-chen-400428379",
-    "title": "Part 2 — Chen 400428379",
+    "id": "my-way-poster",
+    "slug": "my-way-poster",
+    "title": "My Way Poster",
     "category": "gallery",
     "year": "",
-    "type": "Still-image Artwork",
+    "type": "Poster Design",
     "course": "",
     "duration": "",
     "role": "",
-    "description": "",
-    "thumbnail": "/media/gallery/part-2-chen/cover.jpg",
-    "mediaUrl": "/media/gallery/part-2-chen/cover.jpg",
+    "description": "A poster design for Giorgio Armani’s My Way perfume exploring the relationship between scent, memory, and personal identity. Photography, colour, and familiar sensory references such as mango and milk tea transform fragrance into a visual experience.",
+    "thumbnail": "/media/gallery/my-way-poster/artwork.jpg",
+    "mediaUrl": "/media/gallery/my-way-poster/artwork.jpg",
     "images": [
-      "/media/gallery/part-2-chen/cover.jpg"
+      "/media/gallery/my-way-poster/artwork.jpg"
     ],
     "videoUrl": "",
     "audioUrl": "",

@@ -22,7 +22,14 @@ test("base helpers support root, repository subpaths, direct entries and externa
 
 test("production routes and bundled assets use the configured deployment base", async () => {
   const base = normalizeBase(process.env.PAGES_BASE_PATH || "/");
-  const files = ["dist/index.html", "dist/gallery/human-ai-love/index.html", "dist/sound/backyard-bbq/index.html", "dist/404.html"];
+  const files = [
+    "dist/index.html",
+    "dist/gallery/human-ai-love/index.html",
+    "dist/gallery/my-way-poster/index.html",
+    "dist/sound/backyard-bbq/index.html",
+    "dist/sound/frozen-memory-fragments/index.html",
+    "dist/404.html",
+  ];
   for (const file of files) {
     const html = await read(file);
     for (const [, url] of html.matchAll(/(?:src|href)="(\/[^\"]+)"/g)) {
@@ -30,7 +37,9 @@ test("production routes and bundled assets use the configured deployment base", 
       await access(new URL(`dist/${url.slice(base.length)}`, root));
     }
   }
-  assert.match(await read("dist/gallery/human-ai-love/index.html"), /<title>Human AI Love — Haoyu Chen’s Portfolio<\/title>/);
+  assert.match(await read("dist/gallery/human-ai-love/index.html"), /<title>AI Intimacy — Haoyu Chen’s Portfolio<\/title>/);
+  assert.match(await read("dist/gallery/my-way-poster/index.html"), /<title>My Way Poster — Haoyu Chen’s Portfolio<\/title>/);
+  assert.match(await read("dist/sound/frozen-memory-fragments/index.html"), /<title>Frozen Memory Fragments — Haoyu Chen’s Portfolio<\/title>/);
   assert.doesNotMatch(await read("dist/sound/backyard-bbq/index.html"), /property="og:image"/);
   await access(new URL("dist/.nojekyll", root));
   await assert.rejects(access(new URL("dist/server", root)));
