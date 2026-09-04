@@ -77,3 +77,24 @@ test("Rick Roll prank double-buffers video and uses non-blocking in-page message
     assert.match(html, new RegExp(`\\./video/${file.replace(".", "\\.")}`));
   }
 });
+
+test("deployment workflow verifies live routes and byte-range media after publishing", async () => {
+  const workflow = await read(".github/workflows/pages.yml");
+  const verifier = await read("scripts/verify-deployment.mjs");
+  assert.match(workflow, /steps\.deployment\.outputs\.page_url/);
+  assert.match(workflow, /node scripts\/verify-deployment\.mjs/);
+  assert.match(workflow, /actions\/checkout@v6/);
+  assert.match(verifier, /src\/content\/\$\{category\}\.json/);
+  assert.match(verifier, /collectFiles\("projects"\)/);
+  assert.match(verifier, /Range: "bytes=0-1023"/);
+  assert.match(verifier, /response\.status !== 206/);
+});
+
+test("Chicken Flavor avoids a long blank intro and supports tap or keyboard sorting", async () => {
+  const html = await read("public/projects/chicken-flavor/index.html");
+  assert.match(html, /prefers-reduced-motion: reduce/);
+  assert.match(html, /delay \+= 50/);
+  assert.match(html, /role="button" tabindex="0" id="b1"/);
+  assert.match(html, /zone\.addEventListener\('click', placeSelected\)/);
+  assert.match(html, /event\.key === 'Enter' \|\| event\.key === ' '/);
+});

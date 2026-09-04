@@ -65,7 +65,9 @@ test("volume uses a visible native 0–100 range without fragile pointer interce
   assert.match(app, /type="range" min="0" max="100" step="1" value=\{Math\.round\(volume \* 100\)\}/);
   assert.match(app, /useState\(0\.75\)/);
   assert.match(app, /audioRef\.current\.volume = nextVolume/);
+  assert.match(app, /setVolume\(nextVolume\)/);
   assert.match(app, /onVolumeChange=\{\(event\) => setVolume\(event\.currentTarget\.volume\)\}/);
+  assert.match(app, /audio\.ended[\s\S]*audio\.currentTime = 0/);
   assert.doesNotMatch(app, /volumeDraggingRef|volumeAtPointer/);
   assert.doesNotMatch(css, /\.volume-control\s*\{\s*display:\s*none/);
 });

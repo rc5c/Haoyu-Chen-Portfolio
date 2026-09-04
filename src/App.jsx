@@ -411,15 +411,21 @@ function SoundPlayer({ project }) {
     setError("");
     if (!audio.paused) audio.pause();
     else {
-      try { await audio.play(); }
+      try {
+        if (audio.ended || (Number.isFinite(audio.duration) && audio.currentTime >= audio.duration)) {
+          audio.currentTime = 0;
+          setCurrentTime(0);
+        }
+        await audio.play();
+      }
       catch { setError("Audio could not start. Please try again."); }
     }
   };
 
   const changeVolume = (event) => {
     const nextVolume = Math.min(1, Math.max(0, Number(event.currentTarget.value) / 100));
+    setVolume(nextVolume);
     if (audioRef.current) audioRef.current.volume = nextVolume;
-    else setVolume(nextVolume);
   };
 
   const seekTo = (value) => {

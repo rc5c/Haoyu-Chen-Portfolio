@@ -394,6 +394,13 @@
             opacity: 0.4;
         }
 
+        .drag-ball.selected {
+            background: #3e2723;
+            color: #f4f1ea;
+            outline: 3px solid rgba(139, 0, 0, 0.25);
+            outline-offset: 2px;
+        }
+
         .drag-ball.locked {
             cursor: default;
             background: rgba(255, 255, 255, 0.5);
@@ -834,6 +841,8 @@
         }
 
         @media (max-width: 900px) {
+            .floating-words { display: none; }
+            #hero-title, #hero-subtitle, #scroll-indicator { transition-duration: 0.6s; }
             .flavor-map-container {
                 grid-template-columns: 1fr;
             }
@@ -858,6 +867,16 @@
             .ticket-wrapper {
                 padding: 30px;
             }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .floating-words { display: none; }
+            #hero-title, #hero-subtitle, #scroll-indicator { opacity: 1; }
         }
     </style>
 </head>
@@ -927,29 +946,29 @@
                 <h2>03. Guess the Cantonese Taste Logic</h2>
                 <p class="main-statement mission-logic">
                     <span class="mission-text-red">Mission: Unlock the Archive.</span><br>
-                    Drag and sort the eight keywords into the correct categories. Learn by trial and error!
+                    Drag, or tap a keyword and then a category, to sort all eight. Learn by trial and error!
                 </p>
                 
                 <p id="error-msg" class="error-hint"></p>
                 
                 <div class="dnd-container">
-                    <div class="drop-zone" id="zone-cantonese" data-accept="cantonese">
+                    <div class="drop-zone" id="zone-cantonese" data-accept="cantonese" role="button" tabindex="0" aria-label="Closer to Cantonese Taste Logic drop zone">
                         <h4>Closer to Cantonese Taste Logic</h4>
                         <div class="drop-area"></div>
                     </div>
 
                     <div class="balls-pool" id="balls-pool">
-                        <div class="drag-ball" draggable="true" id="b1" data-target="cantonese">original taste</div>
-                        <div class="drag-ball" draggable="true" id="b2" data-target="cantonese">freshness</div>
-                        <div class="drag-ball" draggable="true" id="b4" data-target="cantonese">ingredient-led</div>
-                        <div class="drag-ball" draggable="true" id="b8" data-target="cantonese">restraint</div>
-                        <div class="drag-ball" draggable="true" id="b3" data-target="other">heavy sauce</div>
-                        <div class="drag-ball" draggable="true" id="b5" data-target="other">spice first</div>
-                        <div class="drag-ball" draggable="true" id="b9" data-target="other">masking flavor</div>
-                        <div class="drag-ball" draggable="true" id="b12" data-target="other">external intensity</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b1" data-target="cantonese">original taste</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b2" data-target="cantonese">freshness</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b4" data-target="cantonese">ingredient-led</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b8" data-target="cantonese">restraint</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b3" data-target="other">heavy sauce</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b5" data-target="other">spice first</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b9" data-target="other">masking flavor</div>
+                        <div class="drag-ball" draggable="true" role="button" tabindex="0" id="b12" data-target="other">external intensity</div>
                     </div>
 
-                    <div class="drop-zone" id="zone-other" data-accept="other">
+                    <div class="drop-zone" id="zone-other" data-accept="other" role="button" tabindex="0" aria-label="Not the Flavor Logic Highlighted Here drop zone">
                         <h4>Not the Flavor Logic Highlighted Here</h4>
                         <div class="drop-area"></div>
                     </div>
@@ -1118,8 +1137,9 @@
             const scrollIndicator = document.getElementById("scroll-indicator");
 
             let delay = 0;
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             
-            words.forEach((word) => {
+            if (!reduceMotion) words.forEach((word) => {
                 setTimeout(() => {
                     let span = document.createElement("span");
                     span.className = "floating-words";
@@ -1150,7 +1170,7 @@
                     
                 }, delay);
                 
-                delay += 400; 
+                delay += 50;
             });
 
             setTimeout(() => {
@@ -1159,7 +1179,7 @@
                 if(scrollIndicator) scrollIndicator.style.opacity = "1";
                 
                 document.body.classList.remove("no-scroll");
-            }, delay + 800); 
+            }, reduceMotion ? 0 : delay + 250);
 
             const nodeBtns = document.querySelectorAll('.node-btn');
             const descContents = document.querySelectorAll('.desc-content');
@@ -1223,6 +1243,63 @@
             
             let correctlySortedCount = 0;
             const totalBalls = 8;
+            let selectedBall = null;
+
+            function placeBall(ball, zone) {
+                if (!ball || ball.classList.contains('locked')) return;
+                const ballId = ball.id;
+                const expectedZone = ball.getAttribute('data-target');
+                const actualZone = zone.getAttribute('data-accept');
+                ball.classList.remove('selected');
+                selectedBall = null;
+
+                if (expectedZone === actualZone) {
+                    const errorMsg = document.getElementById('error-msg');
+                    if (errorMsg) errorMsg.style.opacity = '0';
+                    zone.querySelector('.drop-area').appendChild(ball);
+                    ball.setAttribute('draggable', 'false');
+                    ball.setAttribute('tabindex', '-1');
+                    ball.classList.add('locked');
+                    correctlySortedCount++;
+
+                    if (correctlySortedCount === totalBalls) {
+                        const successHint = document.getElementById('success-scroll-hint');
+                        if (successHint) successHint.style.display = 'block';
+                        unlockPanel.style.display = 'block';
+                        setTimeout(() => {
+                            if (successHint) successHint.classList.add('visible');
+                            unlockPanel.classList.add('visible');
+                        }, 50);
+                        const pool = document.getElementById('balls-pool');
+                        if(pool) pool.style.display = 'none';
+                        setTimeout(() => {
+                            if (page4) page4.classList.remove('locked-page');
+                            if (page5) page5.classList.remove('locked-page');
+                            if (hint) hint.style.opacity = '1';
+                        }, 1000);
+                    }
+                    return;
+                }
+
+                const pool = document.getElementById('balls-pool');
+                if (pool) pool.appendChild(ball);
+                const errorMsg = document.getElementById('error-msg');
+                if (!errorMsg) return;
+                let msg = "That doesn't quite fit there. Try again!";
+                if (actualZone === 'cantonese') {
+                    if (ballId === 'b3') msg = 'Too much sauce masks the real chicken flavor!';
+                    if (ballId === 'b5') msg = 'Spices are a distraction here.';
+                    if (ballId === 'b9') msg = "Cantonese cuisine highlights ingredients, it doesn't mask them.";
+                    if (ballId === 'b12') msg = 'We look for internal quality, not external heavy seasoning.';
+                } else if (actualZone === 'other') {
+                    if (ballId === 'b1') msg = 'Original taste is the soul of Cantonese chicken!';
+                    if (ballId === 'b2') msg = 'Freshness is an absolute requirement.';
+                    if (ballId === 'b4') msg = 'Cantonese cooking is strictly ingredient-led.';
+                    if (ballId === 'b8') msg = 'Restraint is key to preserving the natural flavor.';
+                }
+                errorMsg.innerText = msg;
+                errorMsg.style.opacity = '1';
+            }
 
             dragBalls.forEach(ball => {
                 ball.addEventListener('dragstart', (e) => {
@@ -1236,6 +1313,20 @@
 
                 ball.addEventListener('dragend', () => {
                     ball.classList.remove('dragging');
+                });
+
+                const selectBall = () => {
+                    if (ball.classList.contains('locked')) return;
+                    dragBalls.forEach(item => item.classList.remove('selected'));
+                    selectedBall = ball;
+                    ball.classList.add('selected');
+                };
+                ball.addEventListener('click', selectBall);
+                ball.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        selectBall();
+                    }
                 });
             });
 
@@ -1252,72 +1343,15 @@
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     zone.classList.remove('hovered');
-                    
-                    const ballId = e.dataTransfer.getData('text/plain');
-                    const ball = document.getElementById(ballId);
-                    
-                    if (!ball || ball.classList.contains('locked')) return;
+                    placeBall(document.getElementById(e.dataTransfer.getData('text/plain')), zone);
+                });
 
-                    const expectedZone = ball.getAttribute('data-target');
-                    const actualZone = zone.getAttribute('data-accept');
-
-                    if (expectedZone === actualZone) {
-                        const errorMsg = document.getElementById('error-msg');
-                        if (errorMsg) errorMsg.style.opacity = '0';
-
-                        zone.querySelector('.drop-area').appendChild(ball);
-                        ball.setAttribute('draggable', 'false');
-                        ball.classList.add('locked'); 
-                        correctlySortedCount++;
-
-                        if (correctlySortedCount === totalBalls) {
-                            const successHint = document.getElementById('success-scroll-hint');
-                            if (successHint) {
-                                successHint.style.display = 'block';
-                            }
-                            
-                            unlockPanel.style.display = 'block';
-                            
-                            setTimeout(() => { 
-                                if (successHint) successHint.classList.add('visible');
-                                unlockPanel.classList.add('visible'); 
-                            }, 50);
-                            
-                            const pool = document.getElementById('balls-pool');
-                            if(pool) pool.style.display = 'none';
-
-                            setTimeout(() => {
-                                if (page4) page4.classList.remove('locked-page');
-                                if (page5) page5.classList.remove('locked-page');
-                                if (hint) hint.style.opacity = "1";
-                            }, 1000);
-                        }
-                    } else {
-                        const pool = document.getElementById('balls-pool');
-                        if (pool) {
-                            pool.appendChild(ball);
-                        }
-
-                        const errorMsg = document.getElementById('error-msg');
-                        if (errorMsg) {
-                            let msg = "That doesn't quite fit there. Try again!";
-                            
-                            if (actualZone === 'cantonese') { 
-                                 if (ballId === 'b3') msg = "Too much sauce masks the real chicken flavor!";
-                                 if (ballId === 'b5') msg = "Spices are a distraction here.";
-                                 if (ballId === 'b9') msg = "Cantonese cuisine highlights ingredients, it doesn't mask them.";
-                                 if (ballId === 'b12') msg = "We look for internal quality, not external heavy seasoning.";
-                            } 
-                            else if (actualZone === 'other') { 
-                                 if (ballId === 'b1') msg = "Original taste is the soul of Cantonese chicken!";
-                                 if (ballId === 'b2') msg = "Freshness is an absolute requirement.";
-                                 if (ballId === 'b4') msg = "Cantonese cooking is strictly ingredient-led.";
-                                 if (ballId === 'b8') msg = "Restraint is key to preserving the natural flavor.";
-                            }
-
-                            errorMsg.innerText = msg;
-                            errorMsg.style.opacity = '1';
-                        }
+                const placeSelected = () => placeBall(selectedBall, zone);
+                zone.addEventListener('click', placeSelected);
+                zone.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        placeSelected();
                     }
                 });
             });

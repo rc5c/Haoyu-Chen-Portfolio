@@ -48,6 +48,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v6
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify live routes and media delivery
+        run: node scripts/verify-deployment.mjs "${{ steps.deployment.outputs.page_url }}"
