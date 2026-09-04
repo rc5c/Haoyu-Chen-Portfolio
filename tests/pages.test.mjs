@@ -60,3 +60,18 @@ test("standalone website folders keep every local reference together", async () 
     if (name === "rick-roll-prank") assert.equal((await readdir(new URL(`dist/projects/${name}/video/`, root))).filter((f) => f.endsWith(".mp4")).length, 7);
   }
 });
+
+test("Rick Roll prank double-buffers video and uses non-blocking in-page messages", async () => {
+  const html = await read("public/projects/rick-roll-prank/index.html");
+  assert.doesNotMatch(html, /\balert\s*\(|setTimeout\s*\(\s*function\s*\(\)\s*\{[\s\S]*?75/);
+  assert.match(html, /id="message-overlay"[\s\S]*role="dialog"/);
+  assert.match(html, /\[ CONTINUE \]/);
+  assert.equal((html.match(/<video\b/g) || []).length, 2);
+  assert.match(html, /loadeddata/);
+  assert.match(html, /canplay/);
+  assert.match(html, /await ready;[\s\S]*await playback;/);
+  assert.match(html, /\.video-layer\.is-contain\s*\{\s*object-fit:\s*contain/);
+  for (const file of ["background.mp4", "level1.mp4", "level2.mp4", "level3.mp4", "level4.mp4", "level5.mp4", "Rick.mp4"]) {
+    assert.match(html, new RegExp(`\\./video/${file.replace(".", "\\.")}`));
+  }
+});

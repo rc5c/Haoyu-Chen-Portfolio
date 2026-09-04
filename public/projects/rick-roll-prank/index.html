@@ -1,139 +1,180 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        background: #000;
-        overflow: hidden;
-        font-family: monospace; 
-        user-select: none;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rick Roll Prank</title>
+  <style>
+    :root { color-scheme: dark; --neon: #c600ff; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; font-family: monospace; user-select: none; }
 
-    video {
-        width: 100vw;
-        height: 100vh;
-        object-fit: cover;
-        display: block;
-        position: fixed; 
-        top: 0;
-        left: 0;
-        z-index: 0;
+    .video-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      background: #000;
+      opacity: 0;
+      transition: opacity 180ms linear;
     }
+    .video-layer.is-active { z-index: 1; opacity: 1; }
+    .video-layer.is-contain { object-fit: contain; }
 
-    .prank-box {
-        position: absolute;
-        top: 0; bottom: 0; left: 0; right: 0; margin: auto;
-        width: fit-content;
-        height: fit-content;
-        background-color: rgba(0, 0, 0, 0.9);
-        padding: 40px 60px;
-        border: 2px solid #c600ff;
-        box-shadow: 0 0 40px #c600ff;
-        z-index: 10; 
-        text-align: center;
+    .prank-box, .message-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 24px;
     }
+    .message-overlay { z-index: 20; background: rgba(0, 0, 0, 0.28); }
+    .message-overlay[hidden], .prank-box[hidden] { display: none; }
 
-    .title {
-        color: #c600ff;
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
+    .prank-panel {
+      width: min(640px, 100%);
+      padding: clamp(30px, 5vw, 52px) clamp(26px, 6vw, 66px);
+      border: 2px solid var(--neon);
+      background: rgba(5, 0, 8, 0.78);
+      box-shadow: 0 0 40px rgba(198, 0, 255, 0.9), inset 0 0 28px rgba(198, 0, 255, 0.08);
+      text-align: center;
+      backdrop-filter: blur(3px);
     }
-    
-    .btn {
-        background-color: #c600ff;
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        width: 100%;
-    }
-    .btn:hover {
-        background-color: white;
-        color: #c600ff;
-        box-shadow: 0 0 20px white;
-    }
-</style>
+    .title { margin-bottom: 20px; color: var(--neon); font-size: clamp(20px, 4vw, 24px); font-weight: bold; letter-spacing: 2px; line-height: 1.35; text-transform: uppercase; }
+    .warning { display: block; margin-top: 10px; color: red; font-size: 14px; }
+    .message-copy { margin: 0 0 30px; color: #fff; font-size: clamp(17px, 2.2vw, 22px); line-height: 1.55; text-shadow: 0 0 12px rgba(198, 0, 255, 0.45); }
+    .btn { width: 100%; min-height: 52px; border: 1px solid var(--neon); padding: 14px 30px; background: var(--neon); color: #fff; font: inherit; font-size: 18px; font-weight: bold; cursor: pointer; }
+    .btn:hover, .btn:focus-visible { background: #fff; color: var(--neon); box-shadow: 0 0 20px #fff; outline: none; }
+    .btn:disabled { cursor: wait; opacity: 0.65; }
+    @media (prefers-reduced-motion: reduce) { .video-layer { transition: none; } }
+  </style>
 </head>
-
 <body>
+  <video class="video-layer is-active" autoplay muted loop playsinline preload="auto" id="video-a" src="./video/background.mp4"></video>
+  <video class="video-layer" playsinline preload="auto" id="video-b"></video>
 
-  <video autoplay muted loop playsinline id="bg-video">
-      <source src="./video/background.mp4" type="video/mp4">
-  </video>
-
-  <div class="prank-box">
+  <div class="prank-box" id="intro-overlay">
+    <div class="prank-panel">
       <div class="title">
-           TOUCH ME AND I GLITCH<br>
-          <span style="color:red; font-size: 14px; display:block; margin-top:10px;">
-              WARNING YOU HEART RATE MAY SPIKE
-          </span>
+        TOUCH ME AND I GLITCH<br>
+        <span class="warning">WARNING YOU HEART RATE MAY SPIKE</span>
       </div>
-      <button class="btn" onclick="startPrank()">
-          [ BREAK THE SEAL ]
-      </button>
+      <button class="btn" id="start-button" type="button">[ BREAK THE SEAL ]</button>
+    </div>
+  </div>
+
+  <div class="message-overlay" id="message-overlay" role="dialog" aria-modal="true" aria-labelledby="message-copy" hidden>
+    <div class="prank-panel">
+      <p class="message-copy" id="message-copy"></p>
+      <button class="btn" id="continue-button" type="button">[ CONTINUE ]</button>
+    </div>
   </div>
 
   <script>
-    function startPrank() {
-        var video = document.querySelector('video');
-        
-        document.querySelector('.prank-box').style.display = 'none';
+    const stages = [
+      { src: "./video/level1.mp4", message: "Oh, you finally pressed it. Your curiosity got approved before your self control did" },
+      { src: "./video/level2.mp4", message: "Don’t run. You were so bold a second ago, and now you’re out of steam? " },
+      { src: "./video/level3.mp4", message: "Go on, press it. Be good. You’re already here, who are you trying to impress with that “self control? " },
+      { src: "./video/level4.mp4", message: "I warned you. Press it again and I’m not cleaning up the aftermath. But you love hearing that, don’t you? " },
+      { src: "./video/level5.mp4", message: "Fine. Don’t explain. You never wanted the answer, you wanted that one little “keep going” feeling. So go on." },
+      { src: "./video/Rick.mp4", message: "", contain: true }
+    ];
 
-        video.muted = false;
+    const videos = [document.querySelector("#video-a"), document.querySelector("#video-b")];
+    const introOverlay = document.querySelector("#intro-overlay");
+    const messageOverlay = document.querySelector("#message-overlay");
+    const messageCopy = document.querySelector("#message-copy");
+    const startButton = document.querySelector("#start-button");
+    const continueButton = document.querySelector("#continue-button");
+    let activeIndex = 0;
+    let stageIndex = 0;
+    let transitioning = false;
 
-        // Level 1 
-        video.src = "./video/level1.mp4"; 
-        video.play();
-
-        setTimeout(function() {
-            alert("Oh, you finally pressed it. Your curiosity got approved before your self control did");
-
-            // Level 2
-            video.src = "./video/level2.mp4";
-            video.play();
-
-            setTimeout(function() {
-                alert("Don’t run. You were so bold a second ago, and now you’re out of steam? ");
-
-                // Level 3
-                video.src = "./video/level3.mp4";
-                video.play();
-
-                setTimeout(function() {
-                    alert("Go on, press it. Be good. You’re already here, who are you trying to impress with that “self control? ");
-
-                    // Level 4
-                    video.src = "./video/level4.mp4";
-                    video.play();
-
-                    setTimeout(function() {
-                        alert("I warned you. Press it again and I’m not cleaning up the aftermath. But you love hearing that, don’t you? ");
-
-                    // Level 5
-                    video.src = "./video/level5.mp4";
-                    video.play();
-    
-                    setTimeout(function() {
-                        alert("Fine. Don’t explain. You never wanted the answer, you wanted that one little “keep going” feeling. So go on.");
-
-                        video.src = "./video/Rick.mp4";
-                        video.style.objectFit = "contain";
-                        video.play();
-                       }, 75); 
-                    }, 75); 
-                }, 75);
-            }, 75);
-        }, 75);
+    function waitUntilVisible(video) {
+      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const ready = () => { cleanup(); resolve(); };
+        const failed = () => { cleanup(); reject(video.error || new Error("Video failed to load")); };
+        const cleanup = () => {
+          video.removeEventListener("loadeddata", ready);
+          video.removeEventListener("canplay", ready);
+          video.removeEventListener("error", failed);
+        };
+        video.addEventListener("loadeddata", ready, { once: true });
+        video.addEventListener("canplay", ready, { once: true });
+        video.addEventListener("error", failed, { once: true });
+      });
     }
-  </script>
 
+    async function prepareAndShow(stage) {
+      const nextIndex = activeIndex === 0 ? 1 : 0;
+      const currentVideo = videos[activeIndex];
+      const nextVideo = videos[nextIndex];
+      nextVideo.classList.remove("is-active");
+      nextVideo.classList.toggle("is-contain", Boolean(stage.contain));
+      nextVideo.loop = Boolean(stage.contain);
+      nextVideo.muted = false;
+      nextVideo.src = stage.src;
+      nextVideo.load();
+
+      const ready = waitUntilVisible(nextVideo);
+      let playback = nextVideo.play();
+      try {
+        await ready;
+        await playback;
+      } catch (error) {
+        if (error && error.name === "NotAllowedError") {
+          nextVideo.muted = true;
+          playback = nextVideo.play();
+          await ready;
+          await playback;
+        } else {
+          throw error;
+        }
+      }
+
+      nextVideo.classList.add("is-active");
+      currentVideo.classList.remove("is-active");
+      currentVideo.pause();
+      activeIndex = nextIndex;
+    }
+
+    function showMessage(message) {
+      messageCopy.textContent = message;
+      messageOverlay.hidden = false;
+      continueButton.focus();
+    }
+
+    async function advance() {
+      if (transitioning || stageIndex >= stages.length) return;
+      transitioning = true;
+      startButton.disabled = true;
+      continueButton.disabled = true;
+      messageOverlay.hidden = true;
+      const stage = stages[stageIndex];
+      try {
+        await prepareAndShow(stage);
+        stageIndex += 1;
+        if (stage.message) showMessage(stage.message);
+      } catch (error) {
+        messageCopy.textContent = "THE SIGNAL FLICKERED. PRESS CONTINUE TO TRY AGAIN.";
+        messageOverlay.hidden = false;
+      } finally {
+        transitioning = false;
+        startButton.disabled = false;
+        continueButton.disabled = false;
+      }
+    }
+
+    startButton.addEventListener("click", () => {
+      introOverlay.hidden = true;
+      advance();
+    });
+    continueButton.addEventListener("click", advance);
+  </script>
 </body>
 </html>
-
-
