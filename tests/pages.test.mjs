@@ -40,7 +40,11 @@ test("production routes and bundled assets use the configured deployment base", 
   assert.match(await read("dist/gallery/human-ai-love/index.html"), /<title>AI Intimacy — Haoyu Chen’s Portfolio<\/title>/);
   assert.match(await read("dist/gallery/my-way-poster/index.html"), /<title>My Way Poster — Haoyu Chen’s Portfolio<\/title>/);
   assert.match(await read("dist/sound/frozen-memory-fragments/index.html"), /<title>Frozen Memory Fragments — Haoyu Chen’s Portfolio<\/title>/);
-  assert.doesNotMatch(await read("dist/sound/backyard-bbq/index.html"), /property="og:image"/);
+  assert.match(await read("dist/sound/backyard-bbq/index.html"), /property="og:image"/);
+  const scripts = (await readdir(new URL("dist/assets/", root))).filter((file) => file.endsWith(".js"));
+  const productionJs = (await Promise.all(scripts.map((file) => read(`dist/assets/${file}`)))).join("\n");
+  assert.match(productionJs, /rcsz295@outlook\.com/);
+  assert.match(productionJs, /mailto:/);
   await access(new URL("dist/.nojekyll", root));
   await assert.rejects(access(new URL("dist/server", root)));
   await assert.rejects(access(new URL("dist/.openai", root)));

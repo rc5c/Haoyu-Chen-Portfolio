@@ -396,14 +396,14 @@ function SoundPlayer({ project }) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volumePercent, setVolumePercent] = useState(22);
+  const [volume, setVolume] = useState(0.75);
   const [error, setError] = useState("");
   const audioRef = useRef(null);
   const scrubbingRef = useRef(false);
 
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volumePercent / 100;
-  }, [volumePercent]);
+    if (audioRef.current) audioRef.current.volume = volume;
+  }, [volume]);
 
   const toggle = async () => {
     const audio = audioRef.current;
@@ -417,9 +417,9 @@ function SoundPlayer({ project }) {
   };
 
   const changeVolume = (event) => {
-    const nextPercent = Math.min(100, Math.max(0, Number(event.currentTarget.value)));
-    if (audioRef.current) audioRef.current.volume = nextPercent / 100;
-    else setVolumePercent(nextPercent);
+    const nextVolume = Math.min(1, Math.max(0, Number(event.currentTarget.value) / 100));
+    if (audioRef.current) audioRef.current.volume = nextVolume;
+    else setVolume(nextVolume);
   };
 
   const seekTo = (value) => {
@@ -454,7 +454,7 @@ function SoundPlayer({ project }) {
           onDurationChange={syncDuration}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          onVolumeChange={(event) => setVolumePercent(Math.round(event.currentTarget.volume * 100))}
+          onVolumeChange={(event) => setVolume(event.currentTarget.volume)}
           onEnded={(event) => { setPlaying(false); syncTime(event); }}
           onTimeUpdate={syncTime}
           onSeeked={syncTime}
@@ -502,9 +502,9 @@ function SoundPlayer({ project }) {
         </label>
         <label className="volume-control">
           <span>VOLUME</span>
-          <input type="range" min="0" max="100" step="1" value={volumePercent}
+          <input type="range" min="0" max="100" step="1" value={Math.round(volume * 100)}
             aria-label="Volume"
-            aria-valuetext={`${volumePercent} percent`}
+            aria-valuetext={`${Math.round(volume * 100)} percent`}
             onInput={changeVolume}
             onChange={changeVolume} />
         </label>
@@ -670,7 +670,7 @@ function CommunicationPage({ navigate, onHome }) {
         <aside className="contact-panel">
           <p className="eyebrow">GET IN TOUCH</p>
           <h2>Contact</h2>
-          <p>{communication.availability}</p>
+          {communication.availability && <p>{communication.availability}</p>}
           <div className="contact-links">
             {links.map(([label, href, value]) => (
               <a key={label} href={href} target={href.startsWith("mailto:") ? undefined : "_blank"} rel="noreferrer">
