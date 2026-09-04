@@ -81,6 +81,7 @@ test("Rick Roll prank double-buffers video and uses non-blocking in-page message
 test("deployment workflow verifies live routes and byte-range media after publishing", async () => {
   const workflow = await read(".github/workflows/pages.yml");
   const verifier = await read("scripts/verify-deployment.mjs");
+  assert.match(workflow, /permissions:\s+contents: read\s+pages: write\s+id-token: write/);
   assert.match(workflow, /steps\.deployment\.outputs\.page_url/);
   assert.match(workflow, /node scripts\/verify-deployment\.mjs/);
   assert.match(workflow, /actions\/checkout@v6/);
