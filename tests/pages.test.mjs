@@ -98,3 +98,12 @@ test("Chicken Flavor avoids a long blank intro and supports tap or keyboard sort
   assert.match(html, /zone\.addEventListener\('click', placeSelected\)/);
   assert.match(html, /event\.key === 'Enter' \|\| event\.key === ' '/);
 });
+
+test("homepage interaction label appears with the two-second book hint", async () => {
+  const app = await read("src/App.jsx");
+  const css = await read("src/styles.css");
+  assert.match(app, /setTimeout\(\(\) => \{[\s\S]*setShowIdleHint\(true\)[\s\S]*\}, 2000\)/);
+  assert.match(app, />Click Me</);
+  assert.match(app, />Tap Me</);
+  assert.match(css, /\.book-idle-hint span[\s\S]*animation: hint-appear 250ms ease 120ms both/);
+});

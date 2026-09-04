@@ -209,7 +209,7 @@ input:focus-visible {
   font-size: clamp(17px, 1.55vw, 23px);
   font-weight: 600;
   letter-spacing: 0.025em;
-  animation: hint-appear 250ms ease 1800ms both;
+  animation: hint-appear 250ms ease 120ms both;
 }
 
 .hint-touch-label { display: none; }
