@@ -28,6 +28,7 @@ test("production routes and bundled assets use the configured deployment base", 
     "dist/gallery/my-way-poster/index.html",
     "dist/sound/backyard-bbq/index.html",
     "dist/sound/frozen-memory-fragments/index.html",
+    "dist/video/what-we-carry-to-the-table/index.html",
     "dist/404.html",
   ];
   for (const file of files) {
@@ -40,6 +41,7 @@ test("production routes and bundled assets use the configured deployment base", 
   assert.match(await read("dist/gallery/human-ai-love/index.html"), /<title>AI Intimacy — Haoyu Chen’s Portfolio<\/title>/);
   assert.match(await read("dist/gallery/my-way-poster/index.html"), /<title>My Way Poster — Haoyu Chen’s Portfolio<\/title>/);
   assert.match(await read("dist/sound/frozen-memory-fragments/index.html"), /<title>Frozen Memory Fragments — Haoyu Chen’s Portfolio<\/title>/);
+  assert.match(await read("dist/video/what-we-carry-to-the-table/index.html"), /<title>What We Carry to the Table — Haoyu Chen’s Portfolio<\/title>/);
   assert.match(await read("dist/sound/backyard-bbq/index.html"), /property="og:image"/);
   const scripts = (await readdir(new URL("dist/assets/", root))).filter((file) => file.endsWith(".js"));
   const productionJs = (await Promise.all(scripts.map((file) => read(`dist/assets/${file}`)))).join("\n");

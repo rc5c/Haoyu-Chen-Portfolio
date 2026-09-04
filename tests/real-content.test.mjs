@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 const content = async (category) => JSON.parse(await read(`src/content/${category}.json`));
 
 test("only the supplied projects remain, with real descriptions and no design samples", async () => {
-  for (const [category, count] of [["gallery", 5], ["sound", 5], ["video", 3], ["website", 2]]) {
+  for (const [category, count] of [["gallery", 5], ["sound", 5], ["video", 4], ["website", 2]]) {
     const entries = await content(category);
     assert.equal(entries.length, count);
     assert.doesNotMatch(JSON.stringify(entries), /paperbound|between.stations|punctual.studies/i);
@@ -48,7 +48,7 @@ test("public titles keep the exact supplied English project names", async () => 
   const videos = await content("video");
   assert.deepEqual(gallery.map((p) => p.title), ["AI Intimacy", "Red Pill Blue Pill", "Fragmented Balance", "MENU", "My Way Poster"]);
   assert.deepEqual(sounds.map((p) => p.title), ["Backyard BBQ", "An Eventful Weekend", "Drumbeat", "Fungal Hallucination", "Frozen Memory Fragments"]);
-  assert.deepEqual(videos.map((p) => p.title), ["A Stitched Third Birth", "A-Z Tomato & Eggs", "One Becomes Two"]);
+  assert.deepEqual(videos.map((p) => p.title), ["A Stitched Third Birth", "A-Z Tomato & Eggs", "One Becomes Two", "What We Carry to the Table"]);
   assert.ok([...gallery, ...sounds, ...videos].every((p) => !/400428379|^3BB3 Assignment 1A$|^Assignment 2$|^Part 2(?: - Chen 400428379)?$/i.test(p.title)));
   assert.deepEqual(sounds.map((p) => p.thumbnail), [
     "/media/sound/backyard-bbq/cover.jpg",
@@ -79,9 +79,9 @@ test("new sound source is real, local, and uses the supplied two-minute WAV", as
   await access(new URL(`public${project.audioUrl}`, root));
 });
 
-test("videos retain the three supplied YouTube IDs and omit unsupported metadata", async () => {
+test("videos retain the supplied YouTube IDs and omit unsupported metadata", async () => {
   const videos = await content("video");
-  assert.deepEqual(videos.map((p) => new URL(p.videoUrl).searchParams.get("v")), ["tgAvqiOQpwI", "1U5_0xIa5lE", "aMmWzwL30Ic"]);
+  assert.deepEqual(videos.map((p) => new URL(p.videoUrl).searchParams.get("v")), ["tgAvqiOQpwI", "1U5_0xIa5lE", "aMmWzwL30Ic", "b2tKy7TiE3g"]);
   assert.ok(videos.every((p) => p.course === "" && p.duration === ""));
 });
 

@@ -64,5 +64,27 @@
     "externalUrl": "https://youtu.be/aMmWzwL30Ic",
     "displayOrder": 3,
     "status": "published"
+  },
+  {
+    "id": "what-we-carry-to-the-table",
+    "slug": "what-we-carry-to-the-table",
+    "title": "What We Carry to the Table",
+    "category": "video",
+    "year": "",
+    "type": "Video",
+    "course": "",
+    "duration": "",
+    "role": "",
+    "description": "A short documentary exploring how food carries more than taste. Through two contrasting stories of gluten intolerance and Ramadan, the film looks at how food reflects culture, identity, personal challenges, and the ways we understand one another across different backgrounds.",
+    "thumbnail": "https://img.youtube.com/vi/b2tKy7TiE3g/maxresdefault.jpg",
+    "mediaUrl": "",
+    "videoUrl": "https://www.youtube.com/watch?v=b2tKy7TiE3g",
+    "audioUrl": "",
+    "websiteUrl": "",
+    "githubUrl": "",
+    "technologies": "",
+    "externalUrl": "https://youtu.be/b2tKy7TiE3g",
+    "displayOrder": 4,
+    "status": "published"
   }
 ]
