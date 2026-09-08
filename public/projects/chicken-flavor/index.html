@@ -25,7 +25,9 @@
 
         #page1 {
             height: 100vh;
-            width: 100vw;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -37,7 +39,9 @@
         .floating-words {
             position: absolute;
             font-family: Georgia, "Times New Roman", serif;
-            font-size: 2rem;
+            font-size: clamp(0.8rem, 3.2vmin, 2rem);
+            max-width: 90%;
+            overflow-wrap: anywhere;
             color: #3e2723;
             opacity: 0;
             transition: opacity 0.8s ease-in-out, transform 1s ease-out;
@@ -49,12 +53,13 @@
         .title-container {
             text-align: center;
             z-index: 10;
+            max-width: 100%;
         }
 
         #hero-title {
             opacity: 0;
             font-family: Georgia, "Times New Roman", serif;
-            font-size: 3.5rem;
+            font-size: clamp(1.25rem, 6vmin, 3.5rem);
             font-weight: normal;
             margin: 0 0 10px 0;
             border-bottom: 2px solid #8b0000;
@@ -65,7 +70,7 @@
         #hero-subtitle {
             opacity: 0;
             font-family: Georgia, "Times New Roman", serif;
-            font-size: 1.5rem;
+            font-size: clamp(0.85rem, 3vmin, 1.5rem);
             font-weight: normal;
             margin: 0;
             color: #3e2723;
@@ -74,7 +79,7 @@
 
         #scroll-indicator {
             position: absolute;
-            bottom: 50px;
+            bottom: clamp(12px, 7vh, 50px);
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -438,8 +443,10 @@
         }
 
         .unlock-panel.visible {
+            display: block;
             opacity: 1;
             transform: translateY(0);
+            animation: fadeIn 1s ease-in-out;
         }
 
         .unlock-title {
@@ -841,7 +848,6 @@
         }
 
         @media (max-width: 900px) {
-            .floating-words { display: none; }
             #hero-title, #hero-subtitle, #scroll-indicator { transition-duration: 0.6s; }
             .flavor-map-container {
                 grid-template-columns: 1fr;
@@ -1146,12 +1152,13 @@
                     span.innerText = word;
                     
                     const topPos = 20 + Math.random() * 60;
-                    const leftPos = 15 + Math.random() * 70;
+                    const leftPos = Math.random();
                     
                     span.style.top = topPos + "%";
-                    span.style.left = leftPos + "%";
                     
                     heroDiv.appendChild(span);
+                    // Keep the entire word within the hero, including in a short iframe.
+                    span.style.left = (12 + leftPos * Math.max(0, heroDiv.clientWidth - span.offsetWidth - 24)) + 'px';
 
                     setTimeout(() => {
                         span.style.opacity = "0.6";
@@ -1216,7 +1223,7 @@
                         page2Observer.disconnect();
                     }
                 });
-            }, { threshold: 0.45 });
+            }, { threshold: 0 });
 
             if (page2) {
                 page2Observer.observe(page2);
@@ -1242,7 +1249,7 @@
             const hint = document.getElementById('continue-hint');
             
             let correctlySortedCount = 0;
-            const totalBalls = 8;
+            const totalBalls = dragBalls.length;
             let selectedBall = null;
 
             function placeBall(ball, zone) {
@@ -1265,18 +1272,17 @@
                     if (correctlySortedCount === totalBalls) {
                         const successHint = document.getElementById('success-scroll-hint');
                         if (successHint) successHint.style.display = 'block';
-                        unlockPanel.style.display = 'block';
-                        setTimeout(() => {
-                            if (successHint) successHint.classList.add('visible');
-                            unlockPanel.classList.add('visible');
-                        }, 50);
+                        if (successHint) successHint.classList.add('visible');
+                        unlockPanel.classList.add('visible');
                         const pool = document.getElementById('balls-pool');
                         if(pool) pool.style.display = 'none';
-                        setTimeout(() => {
-                            if (page4) page4.classList.remove('locked-page');
-                            if (page5) page5.classList.remove('locked-page');
-                            if (hint) hint.style.opacity = '1';
-                        }, 1000);
+                        // Unlock atomically; presentation timers must not gate access.
+                        if (page4) page4.classList.remove('locked-page');
+                        if (page5) page5.classList.remove('locked-page');
+                        if (hint) hint.style.opacity = '1';
+                        requestAnimationFrame(() => {
+                            unlockPanel.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+                        });
                     }
                     return;
                 }
@@ -1382,7 +1388,7 @@
                         page5Observer.disconnect();
                     }
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0 });
 
             if (page5) {
                 page5Observer.observe(page5);
